@@ -1,3 +1,14 @@
 name: SpigotSystem
 version: '${project.version}'
 main: tiny.lara.spigotsystem.Main
+commands:
+  Fly:
+    description: Enable Fly Mode
+  FlyAll:
+    description: Enable Fly Mode for all the server
+  DisableFlyAll:
+    description: Disable Fly Mode for all the server
+Permissions:
+  fly.use:
+    description: Permissions to use /fly
+  setspawn:

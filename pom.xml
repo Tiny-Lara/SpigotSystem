@@ -58,13 +58,91 @@
           <id>sonatype</id>
           <url>https://oss.sonatype.org/content/groups/public/</url>
       </repository>
+      <repository>
+          <id>protocollib-repo</id>
+          <url>https://repo.dmulloy2.net/content/groups/public/</url>
+      </repository>
+      <repository>
+          <id>bungeecord-repo</id>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      </repository>
+      <repository>
+          <id>releases</id>
+          <url>https://repo.cloudnetservice.eu/repository/releases/</url>
+      </repository>
   </repositories>
 
   <dependencies>
+      <!--Spigot-->
       <dependency>
           <groupId>org.spigotmc</groupId>
           <artifactId>spigot-api</artifactId>
-          <version>1.12-R0.1-SNAPSHOT</version>
+          <version>1.8.8-R0.1-SNAPSHOT</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.spigotmc</groupId>
+          <artifactId>spigot-api</artifactId>
+          <version>1.15-R0.1-SNAPSHOT</version>
+          <scope>provided</scope>
+      </dependency>
+      <!--lombok-->
+      <dependency>
+          <groupId>org.projectlombok</groupId>
+          <artifactId>lombok</artifactId>
+          <version>1.18.2</version>
+          <scope>provided</scope>
+      </dependency>
+      <!--bungeecord-->
+      <dependency>
+          <groupId>net.md-5</groupId>
+          <artifactId>bungeecord-api</artifactId>
+          <version>1.19-R0.1-SNAPSHOT</version>
+          <type>jar</type>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>net.md-5</groupId>
+          <artifactId>bungeecord-api</artifactId>
+          <version>1.16-R0.5-SNAPSHOT</version>
+          <scope>provided</scope>
+      </dependency>
+      <!--ProtocolLib-->
+      <dependency>
+          <groupId>com.comphenix.protocol</groupId>
+          <artifactId>ProtocolLib</artifactId>
+          <version>4.6.0</version>
+          <scope>provided</scope>
+      </dependency>
+      <!--cloudnet-->
+      <dependency>
+          <groupId>de.dytanic.cloudnet</groupId>
+          <artifactId>cloudnet-driver</artifactId>
+          <version>3.4.5-RELEASE</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>de.dytanic.cloudnet</groupId>
+          <artifactId>cloudnet-bridge</artifactId>
+          <version>3.4.5-RELEASE</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>de.dytanic.cloudnet</groupId>
+          <artifactId>cloudnet-wrapper-jvm</artifactId>
+          <version>3.4.5-RELEASE</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>de.dytanic.cloudnet</groupId>
+          <artifactId>cloudnet</artifactId>
+          <version>3.4.5-RELEASE</version>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>de.dytanic.cloudnet</groupId>
+          <artifactId>cloudnet-common</artifactId>
+          <version>3.4.5-RELEASE</version>
           <scope>provided</scope>
       </dependency>
   </dependencies>
