@@ -3,77 +3,95 @@ package tiny.lara.spigotsystem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import tiny.lara.spigotsystem.lobby.CMD_SetSpawn;
-
-import java.util.Objects;
+import tiny.lara.spigotsystem.lobby.*;
+import java.io.File;
 
 public class Main extends JavaPlugin {
-    private static Plugin instance;
+    public final static String COLOR = "§b";
+    public final static String name = "System";
+    public final static String nameK = "ss";
+    private static Main instance;
+    public static Plugin plugin;
+    public final static String prefix = COLOR + "["+name+"] ";
+    public final static String prefixWithoutColor = "["+name+"] ";
+    public static File file = new File("plugins/"+name, "config.yml");
+    public static YamlConfiguration cfg = new YamlConfiguration().loadConfiguration(file);
     @Override
     public void onEnable() {
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new JoinListener(), this);
         System.out.println("§2Fly An!");
         //lobby
-        Bukkit.getMessenger().registerOutgoingPluginChannel((Plugin)this, "BungeeCord");
+        Config.setupConfig();
+        Locations.setupFiles();
         instance = this;
-        loadConfig();
-        loadCommands();
-        Bukkit.getMessenger().registerOutgoingPluginChannel((Plugin)this, "BungeeCord");
-        Bukkit.getConsoleSender().sendMessage(String.valueOf(getPrefix()) + "§eLoad...Events");
-        Bukkit.getConsoleSender().sendMessage(String.valueOf(getPrefix()));
-    }
-    public void onDisable() {
-        System.out.println("§4Fly Aus!");
-    }
-    public void loadConfig() {
-        FileConfiguration cfg = getConfig();
-        cfg.options().copyDefaults(true);
-        saveConfig();
-        getConfig().options().header("%pr% = Lobby Prefix \n %p% = Spielername  \n DER DISPLAY IST DER NICK CHAT NUR OHNE : UND %MESSAGE%!!!! \n");
-        getConfig().addDefault("Lobby.Prefix", "&7[&6Lobby&7]");
-        getConfig().addDefault("Lobby.NoPerm", "%pr% &cDu darfst das nicht!");
-        getConfig().addDefault("Lobby.Command.Warp_Message", Boolean.TRUE);
-        getConfig().addDefault("Lobby.Command.Warp", "%pr% &7Du bist nun bei &e%WARP%");
-        getConfig().addDefault("Lobby.Command.GM_Use", "%pr% &cSyntax: &7/gm <0-3>");
-        getConfig().addDefault("Lobby.Command.GM_0", "%pr% &7Dein Gamemode wurde auf &2Survival &7gesetzt!");
-        getConfig().addDefault("Lobby.Command.GM_1", "%pr% &7Dein Gamemode wurde auf &2Kreativ &7gesetzt!");
-        getConfig().addDefault("Lobby.Command.GM_2", "%pr% &7Dein Gamemode wurde auf &2Adventure &7gesetzt!");
-        getConfig().addDefault("Lobby.Command.GM_3", "%pr% &7Dein Gamemode wurde auf &2Spectator &7gesetzt!");
-        getConfig().addDefault("Lobby.Command.Lobby", "%pr% &7Lobby was coded by &bMiningMaurice");
-        getConfig().addDefault("Lobby.Command.Lobby_reload", "%pr% &aDie Config wurde Reloaded");
-        getConfig().addDefault("Lobby.Command.ChatClear", "%pr% &7Der Chat wurde von &c%p% &7geleert!");
-        getConfig().addDefault("Lobby.Command.Build_On", "%pr% &aDu bist nun im Build-Mode");
-        getConfig().addDefault("Lobby.Command.Build_Off", "%pr% &cDu bist nun nicht mehr im Build-Mode");
-        getConfig().addDefault("Lobby.Command.YouTube", "%pr% &aDen &5YT &aRang vergeben wir, wenn du 25000 &5Abonnenten &ahast!");
-        getConfig().addDefault("Lobby.Command.Info", "%pr% &eNeu! &bLobbySystem");
-        getConfig().addDefault("Lobby.Command.AFK_On", "%pr% Der Spieler &a%p% &7ist nun AFK");
-        getConfig().addDefault("Lobby.Command.AFK_Off", "%pr% Der Spieler &c%p% &7ist nun nicht mehr AFK");
-        getConfig().addDefault("Lobby.Command.Spawn_wurde_nicht_gesetzt", "%pr% &cDer Spawn wurde noch nicht gesetzt!");
-        FileConfiguration fileConfiguration = getConfig();
-        reloadConfig();
-    }
-    public void loadCommands() {
-        Objects.requireNonNull(getCommand("setspawn")).setExecutor((CommandExecutor)new CMD_SetSpawn(this));
+        plugin = this;
+        registerEvents();
+        registerCommands();
+        setSettingsFromConfig();
     }
     public static Main getInstance() {
         return (Main) instance;
     }
-    public static Main getPlugin() {
-        Main plugin = null;
-        return plugin;
+    private void registerCommands() {
+        //Main command
+        this.getCommand("Spigotlobby").setExecutor(new SimpleLobbyCommand());
+        this.getCommand("ss").setExecutor(new SimpleLobbyCommand());
+        //Spawn command
+        this.getCommand("spawn").setExecutor(new SpawnCommand());
+        this.getCommand("stuck").setExecutor(new SpawnCommand());
+        System.out.println(prefixWithoutColor + "loaded commands!");
     }
-    public static String getPrefix() {
-        String pr = getPlugin().getConfig().getString("Lobby.Prefix");
-        pr = pr.replaceAll("&", "§");
-        return pr;
+    private void registerEvents() {
+        Bukkit.getPluginManager().registerEvents(new BreakEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new PlaceEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new PVPEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new JoinEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new QuitEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new DamageEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new RespawnEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new HungerEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new WeatherEvent(), this);
+        Bukkit.getPluginManager().registerEvents(new ChangeWorldEvent(), this);
+        System.out.println(prefixWithoutColor + "loaded events!");
+    }
+    public static void setSettingsFromConfig() {
+        //BOOLEANS
+        Settings.isTeleportOnJoin = cfg.getBoolean("Config.TeleportOnJoin");
+        Settings.isBreakEvent = cfg.getBoolean("Config.DisableBlockBreak");
+        Settings.isPlaceEvent = cfg.getBoolean("Config.DisableBlockPlace");
+        Settings.isDamageEvent = cfg.getBoolean("Config.DisableDamage");
+        Settings.isHitEvent = cfg.getBoolean("Config.DisablePVP");
+        Settings.isWelcomeMessage = cfg.getBoolean("Config.WelcomeMessageB");
+        Settings.isJoinMessage = cfg.getBoolean("Config.JoinMessageB");
+        Settings.isleaveMessage = cfg.getBoolean("Config.LeaveMessageB");
+        Settings.isFireWorkOnJoin = cfg.getBoolean("Config.FireworkOnJoin");
+        Settings.isTeleportOnRespawn = cfg.getBoolean("Config.TeleportOnRespawn");
+        Settings.breakMessage = cfg.getString("Messages.BreakBlocksMessage").replace("&", "§");
+        Settings.placeMessage = cfg.getString("Messages.PlaceBlocksMessage").replace("&", "§");
+        Settings.hitMessage = cfg.getString("Messages.PlayerHitMessage").replace("&", "§");
+        Settings.prefix = cfg.getString("Messages.Prefix").replace("&", "§");
+        Settings.leaveMessage = cfg.getString("Messages.LeaveMessage").replace("&", "§");
+        Settings.joinMessage = cfg.getString("Messages.JoinMessage").replace("&", "§");
+        Settings.welcomeMessage = cfg.getString("Messages.WelcomeMessage").replace("&", "§");
+        Settings.teleportToSpawnMessage = cfg.getString("Messages.SpawnTeleportMessage").replace("&", "§");
+        try {
+            Settings.Spawn = Locations.getLocation("Spawn");
+            Settings.lobbyWorldName = Locations.getLocation("Spawn").getWorld().getName();
+        } catch (Exception e) {
+            System.out.println(prefixWithoutColor + "Failed to init spawn location and world name because spawn is not set!");
+            System.out.println(prefixWithoutColor + "Type ingame /" + nameK + " setspawn");
+        }
+
+    }
+    public void onDisable() {
+        System.out.println("§4Fly Aus!");
     }
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
         if (sender instanceof Player) {

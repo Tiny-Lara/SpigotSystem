@@ -11,4 +11,7 @@ commands:
 Permissions:
   fly.use:
     description: Permissions to use /fly
-  setspawn:
+  Spigotlobby:
+    ss:
+    spawn:
+    stuck:
